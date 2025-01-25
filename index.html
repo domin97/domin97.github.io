@@ -1,11 +1,103 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Filmix</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kiepscy</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .app {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .search {
+      margin-bottom: 20px;
+    }
+    .search input {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    .tile {
+      background-color: #1e1e1e;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.2s;
+    }
+    .tile:hover {
+      background-color: #292929;
+      transform: scale(1.05);
+    }
+    .tile h3 {
+      font-size: 18px;
+      margin: 0;
+      color: #ffffff;
+    }
+  </style>
 </head>
 <body>
-    player test
+  <div id="app" class="app">
+    <div class="search">
+      <input type="text" v-model="searchQuery" placeholder="Szukaj tytułu...">
+    </div>
+    <div class="grid">
+      <div class="tile" v-for="movie in filteredMovies" :key="movie.title" @click="openLink(movie.url)">
+        <h3>{{ movie.title }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          movies: [],
+          searchQuery: ''
+        };
+      },
+      computed: {
+        filteredMovies() {
+          return this.movies.filter(movie =>
+            movie.title.toLowerCase().includes(this.searchQuery.toLowerCase())
+          );
+        }
+      },
+      methods: {
+        async fetchMovies() {
+          try {
+            const response = await fetch('kiepscy.json');
+            this.movies = await response.json();
+          } catch (error) {
+            console.error('Błąd podczas wczytywania pliku JSON:', error);
+          }
+        },
+        openLink(url) {
+          window.open(url, '_blank');
+        }
+      },
+      mounted() {
+        this.fetchMovies();
+      }
+    }).mount('#app');
+  </script>
 </body>
 </html>
