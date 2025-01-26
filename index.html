@@ -95,19 +95,20 @@
   </div>
 
   <script>
-    const { createApp } = Vue;
+    const { createApp, watch } = Vue;
 
     createApp({
       data() {
         return {
           movies: [],
-          searchQuery: ''
+          searchQuery: '',
+          filteredMovies: [] 
         };
       },
-      computed: {
-        filteredMovies() {
-          return this.movies.filter(movie =>
-            movie.title.toLowerCase().includes(this.searchQuery.toLowerCase())
+      watch: {
+        searchQuery(newQuery) {
+          this.filteredMovies = this.movies.filter(movie =>
+            movie.title.toLowerCase().includes(newQuery.toLowerCase())
           );
         }
       },
@@ -117,16 +118,15 @@
             const response = await fetch('kiepscy.json');
             // const response = await fetch('https://domin97.github.io/kiepscy.json');
             this.movies = await response.json();
+            // Ustawienie początkowych wyników na wszystkie filmy
+            this.filteredMovies = this.movies;
           } catch (error) {
             console.error('Błąd podczas wczytywania pliku JSON:', error);
           }
         },
         openLink(url) {
           window.open(url, '_blank');
-        },
-        updatedSearch() {
-          this.searchQuery = this.searchQuery;
-        },
+        }
       },
       mounted() {
         this.fetchMovies();
